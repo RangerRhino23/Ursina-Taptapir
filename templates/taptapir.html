@@ -1,0 +1,145 @@
+<html>
+    <title>Index</title>
+
+<body>
+    <script src="{{ url_for('static', filename='taptapir/taptapir.js') }}"></script>
+<script type="text/sunsnake">
+
+#Global Functions
+set_orientation('horizontal')
+set_window_color('gray')
+set_background_color('black')
+
+#Server URLs
+serverURL = 'http://192.168.2.151:25565'
+
+prompt_uuid = prompt('Enter Username');
+#prompt_uuid = 'taptapir'
+
+data = {
+    uuid: prompt_uuid,
+    x: 0,
+    y: 0,
+};
+
+#Variables
+disconnected = False
+
+def connect():
+    const xhr = new XMLHttpRequest();
+    const jsonData = JSON.stringify(data);
+    xhr.open('POST', serverURL+'/connect');
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function() {
+    if (xhr.status === 200) {
+        const response = JSON.parse(xhr.responseText);
+        console.log(response);
+        // Handle the positions data here
+    } else {
+        console.log('Error:', xhr.status);
+    }
+    };
+    xhr.onerror = function() {
+    console.log('Request failed.');
+    };
+    xhr.send(jsonData);
+
+def disconnect():
+    const xhr = new XMLHttpRequest();
+    const jsonData = JSON.stringify(data);
+    xhr.open('POST', serverURL+'/disconnect');
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function() {
+    if (xhr.status === 200) {
+        const response = JSON.parse(xhr.responseText);
+        console.log(response);
+        disconnected = True
+    } else {
+        console.log('Error:', xhr.status);
+    }
+    };
+    xhr.onerror = function() {
+    console.log('Request failed.');
+    };
+    xhr.send(jsonData);
+
+def update_pos():
+    const xhr = new XMLHttpRequest();
+    const jsonData = JSON.stringify(data);
+    xhr.open('POST', serverURL+'/update_pos');
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function() {
+    if (xhr.status === 200) {
+        const response = JSON.parse(xhr.responseText);
+        console.log(response);
+        // Handle the positions data here
+    } else {
+        console.log('Error:', xhr.status);
+    }
+    };
+    xhr.onerror = function() {
+    console.log('Request failed.');
+    };
+    xhr.send(jsonData);
+
+
+##############################
+### Start of Taptapir Code ###
+##############################
+
+#Connects to Server
+connect()
+
+#Creates Player Entity
+self = Entity(scale=.075, color=color.blue, roundness=1, uuid=data.uuid, x=data.x,y=data.y, speed=0.01)
+
+#Sends a Position update to Server
+def send_update_pos():
+    if not disconnected:
+        update_pos()
+        after 1:
+            send_update_pos()
+#send_update_pos()
+
+#Update Function
+def update():
+    #Problem Detection
+    if data.uuid == '' or data.uuid == null:
+        location.reload()
+    #Self Movement
+    if held_keys['w']:
+        self.y += self.speed
+        update_pos()
+    if held_keys['a']:
+        self.x -= self.speed
+        update_pos()
+    if held_keys['s']:
+        self.y -= self.speed
+        update_pos()
+    if held_keys['d']:
+        self.x += self.speed
+        update_pos()
+    #Update Position
+    data.x = round(self.x, 2)
+    data.y = round(self.y, 2)
+
+#Keyboard Function
+def input(key):
+    if key == 'g':
+        print(data.uuid)
+    if key == 'q':
+        disconnect()
+        let new_window = open(location, '_self')
+        new_window.close()
+
+
+window.addEventListener('unload', function() {
+    disconnect()
+});
+
+
+
+</script>
+<script src="{{ url_for('static', filename='taptapir/sunsnake_compiler.js') }}"></script>
+</body>
+</html>    
