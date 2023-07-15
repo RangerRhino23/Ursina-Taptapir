@@ -1,10 +1,13 @@
 from ursina import *
-import requests, json
+import requests, json, socket
 
 app = Ursina()
 window.borderless = False
 
-serverURL = 'http://192.168.2.151:25565'
+IP = socket.gethostbyname(socket.gethostname())
+PORT = 25565
+
+serverURL = f'http://{IP}:{PORT}'
 #prompt_uuid = input('Enter Username: ')
 prompt_uuid = 'ursina'
 
